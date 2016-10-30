@@ -1,0 +1,186 @@
+---
+title: "Hertie Data Club - Session 1"
+author: "Benjamin Gaiser"
+date: "02 November 2016"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+### Introduction to R
+
+#### R is an object-oriented programming language and environment for statistical computing and graphics.
+
+#### R provides a wide variety of statistical and graphical techniques and is highly extensible (R-packages).
+
+#### It is great with data management and for free!
+
+#### R is the language, and RStudio is the integrated developer environment (IDE) that facilitates using R.
+
+#### Public data is increasingly accesible and open and there are packages to directly download into your R environment.
+
+  - e.g. World Development Indicator, GovData Germany, data.gov.uk, New York City, etc.
+  
+#### There is a huge community that can help you with problems. 
+
+  - If you ever have an error (and you will), Stackoverflow and R-Blogger will have the answer
+
+\pagebreak
+
+### How does R look like?
+
+#### R is divided in four quadrants
+
+- The top left quadrant is the editor
+- The bottom left quadrant is the console
+- The top right quadrant is the global environment and history
+- The bottom right quadrant is a multi-purpose quadrant that is mainly used for plots
+
+### How does R work?
+
+#### R is an object-oriented programme. The objects can be seen as R's nouns:
+
+- numeric (real numbers)
+
+```{r How does it work(1)}
+numeric <- 10
+numeric
+
+numeric_vector <- c(1,2,3)
+numeric_vector
+
+class(numeric_vector)
+```
+
+- character
+
+```{r How does it work(2)}
+character_vector <- c('Albania', 'Botswana', 'Cambodia')
+character_vector
+```
+
+- integer (subset of numeric)
+
+- logical 
+```{r How does it work(3)}
+logical_vector <- c(TRUE, FALSE, TRUE)
+logical_vector
+
+class(logical_vector)
+```
+
+#### These objects are organized in three main ways
+
+- Matrix
+```{r How does it work (4)}
+matrix_combined <- cbind(numeric_vector, character_vector)
+matrix_combined 
+```
+
+- Data Frames
+```{r How does it work(5)}
+combined_df <- data.frame(numeric_vector, character_vector, stringsAsFactors = FALSE)
+combined_df
+```
+
+- Lists
+```{r How does it work(6)}
+test_list <- list(countries = character_vector, not_there = c(NA, NA),
+                  more_numbers = 1:10)
+test_list
+```
+
+\pagebreak
+
+### Statistics in R - What can it do?
+```{r message=FALSE}
+swiss <- as.data.frame(swiss)
+library(Hmisc)
+library(ggplot2)
+```
+
+#### Data Frame: Swiss Fertility and Socioeconomic Indicators (1888), R Data Set. Variables of interest: 
+- Independent Variable X: Catholic - % as opposed to Protestant
+- Dependent Variable Y: Fertility - lg, common standardized fertility measure
+
+#### What the data look like - Initial Descriptive Statistics
+```{r message=FALSE}
+summary(swiss)
+```
+
+### Hypothesis: Catholics have a higher fertility rate than Protestants.
+
+#### First, we have a closer look at the initial descriptive statistics of our variables of interest.
+```{r message=FALSE}
+describe(swiss$Fertility)
+describe(swiss$Catholic)
+var(swiss$Fertility)
+var(swiss$Catholic)
+sd(swiss$Fertility)
+sd(swiss$Catholic)
+```
+
+#### The variable 'Catholic' shows high variance and standard deviation for a continuous variable of between 0 and 100. Let's plot the relationship in order to see how the relationship looks.
+
+```{r message=FALSE}
+ggplot(swiss, aes(Catholic, Fertility)) + geom_point()
+```
+
+
+#### Adding a line of best fit, we can see that this relationship is significant, explaining 20 % of the variance (R-value). Yet, the striking thing is the clear divide between mostly Protestant and mostly Catholic cantons, except of four "outliers in the middle"
+
+```{r message=FALSE}
+ggplotRegSwiss <- function(fit){
+  ggplot(swiss, aes(Catholic, Fertility)) +
+    geom_point(colour = 'blue') +
+    stat_smooth(method = 'lm', col = 'red', size=0.75) +
+    labs(title = paste('Adj R2 = ',signif(summary(fit)$adj.r.squared, 3),
+                       'Intercept =',signif(fit$coef[[1]],3 ),
+                       ' Slope =',signif(fit$coef[[2]], 1),
+                       ' P =',signif(summary(fit)$coef[2,4], 2)))
+}
+FitOfDataSwiss <- lm(Fertility ~ Catholic, data = swiss)
+ggplotRegSwiss(FitOfDataSwiss)
+```
+
+\pagebreak
+
+### Which cantons are neither mostly Protestant nor mostly Catholic?
+
+- Step 1: Creating a factor variable with four different groups.
+
+```{r message=FALSE}
+swiss$CatholicCat <- cut(swiss$Catholic, seq(0, 100, 25))
+```
+
+- Step 2: Changing the factor variable into a character variable in order to rename the rownames.
+
+```{r message=FALSE}
+swiss$CatholicCat <- as.character(swiss$CatholicCat)
+```
+
+- Step 3: Renaming the rownames.
+
+```{r message=FALSE}
+swiss$CatholicCat[swiss$CatholicCat=='(0,25]'] <- 'Protestant'
+swiss$CatholicCat[swiss$CatholicCat=='(25,50]'] <- 'Protestant to Catholic'
+swiss$CatholicCat[swiss$CatholicCat=='(50,75]'] <- 'Catholic to Protestant'
+swiss$CatholicCat[swiss$CatholicCat=='(75,100]'] <- 'Catholic'
+```
+
+- Step 4: Finding the cantons which are 'Protestant to Catholic' and 'Catholic to Protestant'.
+
+```{r message=FALSE}
+which(grepl('Protestant to Catholic', swiss$CatholicCat)) # 4 and 45
+which(grepl('Catholic to Protestant', swiss$CatholicCat)) # 46 and 47
+```
+
+- Step 5: Searching the names.
+
+```{r message=FALSE}
+swiss[c(4,45:47),]
+```
+
+#### Moutier, V. De Geneve, Rive Droite and Rive Gauce are the only cantons where there is at least a third of the population that does not belong to the majority religion.
