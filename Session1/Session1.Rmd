@@ -17,15 +17,16 @@ knitr::opts_chunk$set(echo = TRUE)
 
 #### It is great with data management and for free!
 
-#### R is the language, and RStudio is the integrated developer environment (IDE) that facilitates using R.
+#### R is the language, and RStudio is the most popular integrated developer environment (IDE) that facilitates using R.
 
 #### Public data is increasingly accesible and open and there are packages to directly download into your R environment.
 
   - e.g. World Development Indicator, GovData Germany, data.gov.uk, New York City, etc.
-  
-#### There is a huge community that can help you with problems. 
+
+#### There is a huge community that can help you with problems.
 
   - If you ever have an error (and you will), Stackoverflow and R-Blogger will have the answer
+  - Members of the community write R packages that implement state-of-the-art statistical methods or just simply make your life a lot easier
 
 \pagebreak
 
@@ -37,33 +38,51 @@ knitr::opts_chunk$set(echo = TRUE)
 - The bottom left quadrant is the console
 - The top right quadrant is the global environment and history
 - The bottom right quadrant is a multi-purpose quadrant that is mainly used for plots
+- If you want, you can move them around and group the tabs however you like to fit your workflow
 
 ### How does R work?
 
-#### R is an object-oriented programme. The objects can be seen as R's nouns:
+### R is an object-oriented programme. The objects can be seen as R's nouns:
 
-- numeric (real numbers)
+On the lowest level, data is represented in so-called atomic vectors, which form the basis of more complex data structures in R. There are four common atomic vector types:
+
+#### numeric, also often called "double"
+- represent real numbers in memory
 
 ```{r How does it work(1)}
 numeric <- 10
 numeric
 
-numeric_vector <- c(1,2,3)
+numeric_vector <- c(1, 2.4, -3.6)
 numeric_vector
 
 class(numeric_vector)
 ```
 
-- character
+#### integers (any number without decimal points; can be positive or negative)
+- designated in R by adding an "L" after the number
+
+```{r How does it work(1a)}
+integer <- 10L
+integer
+
+integer_vector <- c(1L, -2L, 3L)
+integer_vector
+
+class(integer_vector)
+```
+
+#### character
+- contain written characters 
 
 ```{r How does it work(2)}
 character_vector <- c('Albania', 'Botswana', 'Cambodia')
 character_vector
 ```
 
-- integer (subset of numeric)
+#### logical
+- contain the logical expressions TRUE or FALSE
 
-- logical 
 ```{r How does it work(3)}
 logical_vector <- c(TRUE, FALSE, TRUE)
 logical_vector
@@ -71,25 +90,33 @@ logical_vector
 class(logical_vector)
 ```
 
-#### These objects are organized in three main ways
+### These atomic vectors can be combined in three main ways to form more complex objects
 
-- Matrix
+#### Matrix
+  - all vectors combined in the matrix must be equal length
+  - all vectors must have the same class, otherwise *coercion* happens (we'll cover that later)
+  
 ```{r How does it work (4)}
-matrix_combined <- cbind(numeric_vector, character_vector)
-matrix_combined 
+matrix_combined <- cbind(numeric_vector, integer_vector)
+matrix_combined  # technically, the integers are now numerics, but this is not obvious here
+class(matrix)  # the class of the object is a matrix
 ```
 
-- Data Frames
-```{r How does it work(5)}
-combined_df <- data.frame(numeric_vector, character_vector, stringsAsFactors = FALSE)
-combined_df
-```
-
-- Lists
+#### Lists
+- lists can contain vectors of varying class and of varying length
 ```{r How does it work(6)}
 test_list <- list(countries = character_vector, not_there = c(NA, NA),
                   more_numbers = 1:10)
 test_list
+```
+
+#### Data Frames
+- combines attributes of matrices and lists in order to easily represent statistical data
+- Vectors must be of equal length, but can be of different classes 
+
+```{r How does it work(5)}
+combined_df <- data.frame(numeric_vector, character_vector, stringsAsFactors = FALSE)
+combined_df
 ```
 
 \pagebreak
@@ -101,7 +128,7 @@ library(Hmisc)
 library(ggplot2)
 ```
 
-#### Data Frame: Swiss Fertility and Socioeconomic Indicators (1888), R Data Set. Variables of interest: 
+#### Data Frame: Swiss Fertility and Socioeconomic Indicators (1888), R Data Set. Variables of interest:
 - Independent Variable X: Catholic - % as opposed to Protestant
 - Dependent Variable Y: Fertility - lg, common standardized fertility measure
 
