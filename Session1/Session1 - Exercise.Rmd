@@ -1,0 +1,24 @@
+---
+title: "Hertie Data Club - Exercise 01"
+author: "Benjamin Gaiser"
+date: "02 November 2016"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+- Install the packages Hmisc and ggplot2
+
+- Load your newly installed packages
+
+- Create a data frame with a character, logical and numeric vector of your choice
+
+- Use the help function to check out R's in-built data set "EuStockMarkets" (tip: ?object will open the Help pane)
+
+- Load the data set "EuStockMarkets" and assign it to an object name of your choice
+
+- What is the mean/median/standard deviation of the four stock markets?
+
+- Create a line chart for the values of the DAX (tip: use the command plot and look for the right "type" specification)
