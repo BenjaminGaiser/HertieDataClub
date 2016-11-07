@@ -1,0 +1,151 @@
+---
+title: "Hertie Data Club - Session 2"
+author: "Benjamin Gaiser"
+date: "07 November 2016"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+### Data management with R
+
+#### Are there any questions/Have there been any issues with the exercise?
+
+- Install the packages Hmisc and ggplot2
+```{r How does it work(1)}
+#install.packages("Hmisc")
+#install.packages("ggplot2")
+```
+
+- Load your newly installed packages
+```{r How does it work(2)}
+library(Hmisc)
+library(ggplot2)
+```
+
+- Create a data frame with a character, logical and numeric vector of your choice
+```{r How does it work(3)}
+numeric_vector <- c(1:3)
+character_vector <- c("a","b","c")
+logical_vector <- c(TRUE, FALSE, TRUE)
+combined_df <- data.frame(numeric_vector, character_vector, logical_vector, stringsAsFactors = FALSE)
+combined_df
+```
+
+- Use the help function to check out R's in-built data set "EuStockMarkets" (tip: ?object will open the Help pane)
+```{r How does it work(4)}
+data()
+#?EuStockMarkets
+```
+
+- Load the data set "EuStockMarkets" and assign it to an object name of your choice
+```{r How does it work(5)}
+Stocks <- as.data.frame(EuStockMarkets)
+```
+
+- What is the mean/median/standard deviation of the four stock markets?
+```{r How does it work(6)}
+summary(Stocks)
+sd(Stocks$DAX)
+sd(Stocks$SMI)
+sd(Stocks$CAC)
+sd(Stocks$FTSE)
+#describe(Stocks)
+```
+
+- Create a line chart for the values of the DAX (tip: use the command plot and look for the right "type" specification)
+```{r How does it work(7)}
+plot(Stocks$DAX, type = "l")
+```
+
+#### We will continue to use the "swiss" data set for today's Session on Data Management.
+
+- Loading the data set and assigning it to the object "swiss"
+```{r swiss(0)}
+swiss <- as.data.frame(swiss)
+```
+
+- Look at the data
+```{r swiss(1)}
+summary(swiss)
+View(swiss)
+```
+
+- Creating a new variable: High Education
+```{r swiss(2)}
+swiss$HighEductaion <- NA
+swiss$HighEductaion[swiss$Education<12] <- 0
+swiss$HighEductaion[swiss$Education>=12] <- 1
+# Check if it worked out
+table(swiss$HighEductaion, swiss$Education)
+```
+
+- Renaming variables
+```{r swiss(3)}
+names(swiss)
+# column names
+colnames(swiss)[colnames(swiss)=="HighEductaion"] <- "HighEducation"
+names(swiss)
+
+# row names/values
+swiss$HighEducation
+swiss[1,7] <- "High-level Education"
+swiss$HighEducation # Have you noticed anything else?
+
+# This is tedious and very error prone. Another method:
+swiss$HighEducation[swiss$HighEducation==1] <- "High-level Education"
+swiss$HighEducation
+```
+
+- Searching data
+```{r swiss(4)}
+summary(swiss) # Agriculture seems non linear
+# Find minimum
+which.min(swiss$Agriculture)
+# Observation 45
+swiss[45,]
+# Answer: V. De Geneve
+
+# Search for character
+which(grepl("High-level Education", swiss$HighEducation))
+# Look at observations
+swiss[c(5,10,12,14,18,19,23,29,38,39,41,42,45,46,47),]
+# Tedious. Alternative:
+HighLevel <- which(grepl("High-level Education", swiss$HighEducation))
+swiss[HighLevel,]
+```
+
+- Subsetting, Dropping
+```{r swiss(5)}
+# Only want to have a data set with the observations with High-Level Education
+table(swiss$HighEducation) # 16 observations
+Educated <- swiss[which(swiss$HighEducation=="High-level Education"),]
+# Alternatively, we could use the subset function
+Edu <- subset(swiss, HighEducation=="High-level Education")
+# Drop variables
+Edu$HighEducation <- NULL
+summary(Edu)
+# Drop observation (e.g. minimum Agriculture, i.e. observation 45)
+swiss[45,]
+small_swiss <- swiss[-45,]
+which.min(small_swiss$Agriculture) # Observation 40
+swiss[40,]
+```
+
+- Merging
+```{r swiss(6)}
+# Which variable does only have unique identifiers?
+table(which(duplicated(swiss$Agriculture)))
+
+# Divide into two sets
+swiss_part1 <- swiss[,0:3]
+swiss_part2 <- swiss[,c(2,4:7)]
+
+names(swiss_part1)
+names(swiss_part2)
+
+# Merge by unique identifier
+swiss_total <- merge(swiss_part1, swiss_part2, by="Agriculture")
+```

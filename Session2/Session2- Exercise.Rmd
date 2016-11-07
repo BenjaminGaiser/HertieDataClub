@@ -1,0 +1,12 @@
+---
+title: "Hertie Data Club - Exercise 01"
+author: "Benjamin Gaiser"
+date: "02 November 2016"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+- Subset swiss to High-Level Education and High-Level Fertility (above 78.45 %) or create your own "High-Level variable"

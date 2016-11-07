@@ -86,6 +86,7 @@ character_vector
 ```{r How does it work(3)}
 logical_vector <- c(TRUE, FALSE, TRUE)
 logical_vector
+True 
 
 class(logical_vector)
 ```
