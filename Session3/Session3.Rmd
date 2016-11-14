@@ -94,7 +94,7 @@ stargazer::stargazer(fit, title="Univariate Regression",
 ```
 
 - Line of best fit
-```{r}
+```{r, message=FALSE}
 scatter <- scatter + geom_smooth()
 scatter
 
