@@ -57,6 +57,7 @@ sd(Stocks$FTSE)
 
 - Create a line chart for the values of the DAX (tip: use the command plot and look for the right "type" specification)
 ```{r How does it work(7)}
+plot(Stocks$DAX)
 plot(Stocks$DAX, type = "l")
 ```
 

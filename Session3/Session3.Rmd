@@ -1,0 +1,113 @@
+---
+title: "Hertie Data Club - Session 3"
+author: "Benjamin Gaiser"
+date: "14 November 2016"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+### Data visualization and analysis with R
+
+#### Are there any questions/Have there been any issues with the exercise?
+
+- Load packages for this Session
+```{r How does it work(2)}
+library(ggplot2)
+library(stargazer)
+```
+
+#### We will continue to use the "swiss" data set.
+
+- Loading the data set and assigning it to the object "swiss"
+```{r swiss(0)}
+swiss <- as.data.frame(swiss)
+```
+
+- Look at the data
+```{r swiss(1)}
+summary(swiss)
+```
+
+- Plot Fertility and Religion
+```{r plot(0)}
+plot(swiss$Catholic, swiss$Fertility)
+```
+
+- Create a categorial variable of low Catholocism, medium and high Catholocism
+```{r cut}
+# 1.Step: Cut the variable into three pices
+swiss$CatholicCat <- cut(swiss$Catholic, seq(0, 100, 33.33))
+# 2. Step: Changing the factor variable into a character variable for renaming the rownames
+swiss$CatholicCat <- as.character(swiss$CatholicCat)
+table(swiss$CatholicCat) # the four outliers are between 33 and 66 %
+# 3. Step: Renaming the rownames
+swiss$CatholicCat[swiss$CatholicCat=='(0,33.3]'] <- 'Low Catholicism'
+swiss$CatholicCat[swiss$CatholicCat=='(33.3,66.7]'] <- 'Medium Catholicism'
+swiss$CatholicCat[swiss$CatholicCat=='(66.7,100]'] <- 'High Catholicism'
+# 4. Step: Finding the cantons which are 'Medium Catholicism'
+MedCatholicism <- which(grepl('Medium Catholicism', swiss$CatholicCat)) # 4 and 45
+MedCatholicism <- swiss[MedCatholicism,]
+```
+
+- Barplot Medium Catholicism
+```{r plot(1)}
+MedCatholicism
+
+barplot <- ggplot(MedCatholicism, aes(x=Catholic, y=Fertility, fill=CatholicCat)) +
+  geom_bar(stat="identity", colour="black", width=2) +
+  xlab("% of people following Catholicism") + 
+  ylab("Fertility rate of cantion") +
+  ggtitle("Fertility rate of Medium Catholicism") +
+  scale_fill_hue(name="Religious denomination") +
+  theme_bw()
+barplot
+```
+
+- Fancy scatterplot
+```{r plot(2)}
+# Remember the scatterplot from above?
+plot(swiss$Catholic, swiss$Fertility)
+
+scatter <- ggplot(swiss, aes(x=Catholic, y=Fertility))
+scatter
+
+scatter <- scatter + geom_point(aes(colour = factor(CatholicCat)))
+scatter
+
+scatter <- scatter + scale_colour_discrete(name='Catholicism')
+scatter
+
+scatter <- ggplot(swiss, aes(x=Catholic, y=Fertility, shape = factor(CatholicCat)))
+scatter <- scatter + geom_point(aes(colour = factor(CatholicCat)), size = 2.5, show.legend = NA)
+scatter
+```
+
+- Linear regression model
+```{r regression(1),message=FALSE, results="asis"}
+fit <- lm(Fertility ~ Catholic, swiss)
+
+stargazer::stargazer(fit, title="Univariate Regression",
+                     digits=2, type="html", header=FALSE)
+```
+
+- Line of best fit
+```{r}
+scatter <- scatter + geom_smooth()
+scatter
+
+# Because the fill is Catholic Cat which is a categorical variable
+bw <- ggplot(swiss, aes(x=Catholic, y=Fertility)) +
+  geom_point() +
+  geom_smooth()
+bw
+
+# Still not exactly what we want
+lbf <- ggplot(swiss, aes(x=Catholic, y=Fertility)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = TRUE)
+lbf
+```
+
